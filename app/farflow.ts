@@ -12,7 +12,11 @@ class FarFlow extends cdk.Stack {
 
     // Create VPC and Fargate Cluster
     // NOTE: Limit AZs to avoid reaching resource quotas
-    let vpc = new ec2.Vpc(this, 'Vpc', { maxAzs: 2 });
+    //let vpc = new ec2.Vpc(this, 'Vpc', { maxAzs: 2 });
+    let vpc = ec2.Vpc.fromLookup(this, 'ImportVPC',{
+                      vpcId: "vpc-000b16d0e5d305464",
+                      vpcName: "daas-poc--daas-dev"
+                    });
     cdk.Tags.of(scope).add("Stack", "FarFlow");
 
     let cluster = new ecs.Cluster(this, 'ECSCluster', { vpc: vpc });
@@ -45,6 +49,11 @@ class FarFlow extends cdk.Stack {
 
 const app = new cdk.App();
 
-new FarFlow(app, 'FarFlow');
+new FarFlow(app, 'FarFlow', {
+  env: {
+    account: '330461522662',
+    region: 'cn-northwest-1' 
+  },
+});
 
 app.synth();
