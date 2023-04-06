@@ -23,7 +23,7 @@
     "@aws-cdk/aws-ecs": "1.76.0",
     "@aws-cdk/aws-ecs-patterns": "1.76.0",
     "@aws-cdk/aws-ecr-assets": "1.76.0",
-    "@aws-cdk/aws-rds": "1.198.1",
+    "@aws-cdk/aws-rds": "1.76.0",
     "@aws-cdk/core": "1.76.0",
     "@types/uuid": "8.3.0",
     "cdk-serverless-airflow": "^0.7.6",

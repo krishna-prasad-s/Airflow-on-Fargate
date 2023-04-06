@@ -66,7 +66,7 @@ export const defaultDBConfig: DBConfig = {
   dbName: "farflow",
   port: 5432,
   masterUsername: "airflow",
-  instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.SMALL),
+  instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.SMALL),
   allocatedStorageInGB: 25,
   backupRetentionInDays: 30
 };

@@ -8,9 +8,11 @@ RUN apt-get update && apt-get install -y python3-pip \
     libcurl4-gnutls-dev \
     librtmp-dev \
     python3-dev \
-    libpq-dev
+    libpq-dev 
 
-RUN python3 -m pip install PyGreSQL argcomplete pycurl
+USER airflow
+RUN pip install --no-cache-dir PyGreSQL argcomplete pycurl pgdb
+USER root
 
 COPY ./config/* /
 COPY ./dags ${AIRFLOW_HOME}/dags

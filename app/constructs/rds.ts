@@ -58,9 +58,12 @@ export class RDSConstruct extends Construct {
       "password"
     );
 
+    const customPostgresVersion = PostgresEngineVersion.of('15.2','15')
+
+
     this.rdsInstance = new DatabaseInstance(this, "RDSInstance", {
       engine: DatabaseInstanceEngine.postgres({
-        version: PostgresEngineVersion.VER_12_4
+        version: customPostgresVersion
       }),
       instanceType: defaultDBConfig.instanceType,
       instanceIdentifier: defaultDBConfig.dbName,
