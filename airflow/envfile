@@ -1,0 +1,6 @@
+AIRFLOW__CORE__SQL_ALCHEMY_CONN="postgresql+pygresql://postgres:password@localhost:5432/air;"
+AIRFLOW__CELERY__BROKER_URL: "sqs://",
+AIRFLOW__CELERY__RESULT_BACKEND: "db+" + "postgresql+pygresql://postgres:password@localhost:5432/air;",
+AIRFLOW__CORE__EXECUTOR: "CeleryExecutor",
+AIRFLOW__WEBSERVER__RBAC: "True",
+ADMIN_PASS: "password",
