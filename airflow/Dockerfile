@@ -1,4 +1,4 @@
-FROM apache/airflow:2.4.3
+FROM --platform=linux/amd64 apache/airflow:2.4.3
 
 ENV AIRFLOW_HOME=/usr/local/airflow
 
