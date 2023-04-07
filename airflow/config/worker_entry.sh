@@ -2,4 +2,5 @@
 
 set -Eeuxo pipefail
 sleep 30
-airflow worker
+env
+airflow celery worker

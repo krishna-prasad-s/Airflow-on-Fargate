@@ -97,6 +97,6 @@ export class RDSConstruct extends Construct {
     endpoint: string,
     password: string
   ): string {
-    return `postgresql+pygresql://${dbConfig.masterUsername}:${password}@${endpoint}:${dbConfig.port}/${dbConfig.dbName}`;
+    return `postgresql+psycopg2://${dbConfig.masterUsername}:${password}@${endpoint}:${dbConfig.port}/${dbConfig.dbName}`;
   }
 }

@@ -2,10 +2,18 @@
 
 set -Eeuxo pipefail
 
-airflow initdb
+env
 sleep 5
 
-airflow create_user -r Admin -u admin -f FirstName -l LastName -p ${ADMIN_PASS} -e admin@test.com
+airflow db init
+sleep 5
+
+airflow users create --username admin \
+    --firstname krishna \
+    --lastname prasad \
+    --role Admin \
+    --password ${ADMIN_PASS} \
+    --email krishna.prasad.srinivasan@philips.com
 sleep 5
 
 airflow webserver
