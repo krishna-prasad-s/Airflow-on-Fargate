@@ -1,6 +1,6 @@
 import {CfnOutput, Construct, Duration} from "@aws-cdk/core";
 import {IVpc} from "@aws-cdk/aws-ec2";
-import {FargatePlatformVersion, FargateTaskDefinition} from '@aws-cdk/aws-ecs';
+import {Ec2TaskDefinition} from '@aws-cdk/aws-ecs';
 
 import {PolicyConstruct} from "../policies";
 import {workerAutoScalingConfig} from "../config";
@@ -8,16 +8,17 @@ import ecs = require('@aws-cdk/aws-ecs');
 import ec2 = require("@aws-cdk/aws-ec2");
 import elbv2 = require("@aws-cdk/aws-elasticloadbalancingv2");
 
+
 export interface ServiceConstructProps {
   readonly vpc: IVpc;
   readonly cluster: ecs.ICluster;
   readonly defaultVpcSecurityGroup: ec2.ISecurityGroup;
-  readonly taskDefinition: FargateTaskDefinition;
+  readonly taskDefinition: Ec2TaskDefinition;
   readonly isWorkerService?: boolean;
 }
 
 export class ServiceConstruct extends Construct {
-  private readonly fargateService: ecs.FargateService;
+  private readonly ec2Service: ecs.Ec2Service;
   public readonly loadBalancerDnsName?: CfnOutput;
 
   constructor(parent: Construct, name: string, props: ServiceConstructProps) {
@@ -32,20 +33,19 @@ export class ServiceConstruct extends Construct {
       policies.policyStatements.forEach(policyStatement => props.taskDefinition.taskRole.addToPolicy(policyStatement));
     }
 
-    // Create Fargate Service for Airflow
-    this.fargateService = new ecs.FargateService(this, name, {
+    this.ec2Service = new ecs.Ec2Service(this, name, {
       cluster: props.cluster,
       taskDefinition: props.taskDefinition,
       securityGroup: props.defaultVpcSecurityGroup,
-      platformVersion: FargatePlatformVersion.VERSION1_4
+      serviceName: "ArflowEC2Service"
     });
-    const allowedPorts = new ec2.Port({
+    const allowedEc2Ports = new ec2.Port({
       protocol: ec2.Protocol.TCP,
       fromPort: 0,
       toPort: 65535,
       stringRepresentation: "All"
     });
-    this.fargateService.connections.allowFromAnyIpv4(allowedPorts);
+    this.ec2Service.connections.allowFromAnyIpv4(allowedEc2Ports);
 
     if (props.isWorkerService) {
       this.configureAutoScaling();
@@ -74,7 +74,7 @@ export class ServiceConstruct extends Construct {
     });
 
     const targetGroup = listener.addTargets(
-      "AirflowFargateServiceTargetGroup",
+      "AirflowEC2TargetGroup",
       {
         healthCheck: {
           port: "traffic-port",
@@ -82,7 +82,7 @@ export class ServiceConstruct extends Construct {
           path: "/health"
         },
         port: 80,
-        targets: [this.fargateService]
+        targets: [this.ec2Service]
       }
     );
     targetGroup.setAttribute("deregistration_delay.timeout_seconds", "60");
@@ -91,7 +91,7 @@ export class ServiceConstruct extends Construct {
   }
 
   private configureAutoScaling(): void {
-    const scaling = this.fargateService.autoScaleTaskCount({
+    const scaling = this.ec2Service.autoScaleTaskCount({
       maxCapacity: workerAutoScalingConfig.maxTaskCount,
       minCapacity: workerAutoScalingConfig.minTaskCount
     });

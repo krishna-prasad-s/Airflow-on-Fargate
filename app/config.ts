@@ -36,18 +36,21 @@ export const workerAutoScalingConfig: AutoScalingConfig = {
 export const defaultWebserverConfig: ContainerConfig = {
   name: "WebserverContainer",
   containerPort: 8080,
+  memoryLimitMiB: 4096,
   entryPoint: "/webserver_entry.sh"
 }
 
 export const defaultSchedulerConfig: ContainerConfig = {
   name: "SchedulerContainer",
   containerPort: 8081,
+  memoryLimitMiB: 4096,
   entryPoint: "/scheduler_entry.sh"
 }
 
 export const defaultWorkerConfig: ContainerConfig = {
   name: "WorkerContainer",
   containerPort: 8082,
+  memoryLimitMiB: 4096,
   entryPoint: "/worker_entry.sh"
 }
 

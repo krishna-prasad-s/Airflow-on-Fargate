@@ -2,7 +2,6 @@ import { Construct } from "@aws-cdk/core";
 
 import ecs = require('@aws-cdk/aws-ecs');
 import { DockerImageAsset } from '@aws-cdk/aws-ecr-assets';
-import { FargateTaskDefinition } from '@aws-cdk/aws-ecs';
 import {ManagedPolicy} from "@aws-cdk/aws-iam";
 
 export interface AirflowDagTaskDefinitionProps {
@@ -34,11 +33,10 @@ export class AirflowDagTaskDefinition extends Construct {
   ) {
     super(scope, taskName + "-TaskConstruct");
 
-    // Create a new task with given requirements
-    const workerTask = new FargateTaskDefinition(this, taskName + '-TaskDef', {
-      cpu: props.cpu,
-      memoryLimitMiB: props.memoryLimitMiB,
-      family: props.taskFamilyName
+    const workerTask = new ecs.TaskDefinition(this, 'MyTaskDefinition', {
+      compatibility: ecs.Compatibility.EC2,
+      family:  props.taskFamilyName,
+      networkMode: ecs.NetworkMode.AWS_VPC,
     });
 
     if (props.efsVolumeInfo) {
@@ -58,7 +56,8 @@ export class AirflowDagTaskDefinition extends Construct {
 
     let container = workerTask.addContainer(props.containerInfo.name, {
       image: ecs.ContainerImage.fromDockerImageAsset(workerImageAsset),
-      logging: props.logging
+      logging: props.logging,
+      memoryLimitMiB: props.memoryLimitMiB
     });
 
     if (props.efsVolumeInfo) {

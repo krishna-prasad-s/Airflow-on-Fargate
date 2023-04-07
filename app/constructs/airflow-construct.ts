@@ -4,7 +4,7 @@ import { IVpc } from "@aws-cdk/aws-ec2";
 import ecs = require('@aws-cdk/aws-ecs');
 import ec2 = require("@aws-cdk/aws-ec2");
 import { DockerImageAsset } from '@aws-cdk/aws-ecr-assets';
-import { FargateTaskDefinition } from '@aws-cdk/aws-ecs';
+import { Ec2TaskDefinition } from '@aws-cdk/aws-ecs';
 
 import {airflowTaskConfig, ContainerConfig} from "../config";
 import { ServiceConstruct } from "./service-construct";
@@ -49,17 +49,16 @@ export class AirflowConstruct extends Construct {
       directory: './airflow',
     });
 
-    const airflowTask = new FargateTaskDefinition(this, 'AirflowTask', {
-      cpu: airflowTaskConfig.cpu,
-      memoryLimitMiB: airflowTaskConfig.memoryLimitMiB
+    const airflowTask = new Ec2TaskDefinition(this, 'AirflowTask', {
+      networkMode: ecs.NetworkMode.AWS_VPC,
     });
 
     let workerTask = airflowTask;
     if (airflowTaskConfig.createWorkerPool) {
-      workerTask = new FargateTaskDefinition(this, 'WorkerTask', {
-        cpu: airflowTaskConfig.cpu,
-        memoryLimitMiB: airflowTaskConfig.memoryLimitMiB
+        workerTask = new Ec2TaskDefinition(this, 'WorkerTask', {
+        networkMode: ecs.NetworkMode.AWS_VPC,
       });
+  
     }
 
     let mmap = new Map();
@@ -70,7 +69,7 @@ export class AirflowConstruct extends Construct {
     // Add containers to corresponding Tasks
     for (let entry of mmap.entries()) {
       let containerInfo: ContainerConfig = entry[0];
-      let task: FargateTaskDefinition = entry[1];
+      let task: Ec2TaskDefinition = entry[1];
 
       task.addContainer(containerInfo.name, {
         image: ecs.ContainerImage.fromDockerImageAsset(airflowImageAsset),
@@ -78,7 +77,7 @@ export class AirflowConstruct extends Construct {
         environment: ENV_VAR,
         entryPoint: [containerInfo.entryPoint],
         cpu: containerInfo.cpu,
-        memoryLimitMiB: containerInfo.cpu
+        memoryLimitMiB: containerInfo.memoryLimitMiB
       }).addPortMappings({
         containerPort: containerInfo.containerPort
       });

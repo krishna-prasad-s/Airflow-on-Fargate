@@ -21,6 +21,16 @@ class FarFlow extends cdk.Stack {
 
     let cluster = new ecs.Cluster(this, 'ECSCluster', { vpc: vpc });
 
+    const asg = cluster.addCapacity('MyCapacity', {
+      instanceType: new ec2.InstanceType('t3.xlarge'),
+      minCapacity: 2,
+      maxCapacity: 4,
+    });
+    
+    asg.scaleOnCpuUtilization('MyCpuScaling', {
+      targetUtilizationPercent: 50,
+    });
+
     // Setting default SecurityGroup to use across all the resources
     let defaultVpcSecurityGroup = new ec2.SecurityGroup(this, "SecurityGroup", {vpc: vpc});
 
